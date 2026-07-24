@@ -1,0 +1,204 @@
+:root {
+    --baize:    #14372c;
+    --baize-dk: #0a1f18;
+    --oxblood:  #4e171a;
+    --walnut:   #231610;
+    --ink:      #0a0705;
+    --brass:    #c08b3e;
+    --brass-lt: #edd092;
+    --brass-dk: #5f4118;
+    --ivory:    #efe4cf;
+    --card:     #e7dcc4;
+    --wax:      #a8322a;
+
+    --plaque: linear-gradient(157deg, #7d5a24 0%, #cda863 18%, #8a6529 42%, #e2c283 58%, #7a5722 82%, #a8813c 100%);
+    --engrave: inset 0 1px 0 rgba(255,244,214,.6), inset 0 -1px 0 rgba(0,0,0,.55), inset 0 0 0 1px rgba(0,0,0,.22);
+    --lift: 0 12px 30px rgba(0,0,0,.75), 0 2px 4px rgba(0,0,0,.6);
+}
+
+* { box-sizing: border-box; }
+body {
+    margin: 0; overflow: hidden; background: var(--ink);
+    font-family: 'Barlow Semi Condensed', system-ui, sans-serif;
+    color: var(--ivory);
+    -webkit-font-smoothing: antialiased;
+}
+#webgl-container { position: fixed; inset: 0; }
+
+/* the room falls away at the edges — the lamp only reaches so far */
+.ui-overlay {
+    position: fixed; inset: 0; pointer-events: none; z-index: 10;
+    background:
+        radial-gradient(120% 90% at 50% 42%, transparent 34%, rgba(4,2,1,.72) 82%, #040201 100%),
+        linear-gradient(to bottom, rgba(4,2,1,.5), transparent 22%);
+}
+
+/* ── engraved brass ─────────────────────────────────────────── */
+.brass {
+    background: var(--plaque);
+    background-size: 200% 200%;
+    box-shadow: var(--engrave), var(--lift);
+    border-radius: 2px;
+    color: #33240c;
+    text-shadow: 0 1px 0 rgba(255,246,222,.5);
+}
+
+/* ── seat ledger ────────────────────────────────────────────── */
+.ledger {
+    position: fixed; bottom: 26px; left: 26px; z-index: 900;
+    padding: 14px 18px 12px; min-width: 196px;
+    background:
+        linear-gradient(to bottom, rgba(255,255,255,.05), transparent 40%),
+        var(--oxblood);
+    border: 1px solid #1d0809;
+    border-radius: 3px;
+    box-shadow: inset 0 1px 0 rgba(255,180,150,.14), inset 0 -14px 24px rgba(0,0,0,.5), var(--lift);
+}
+.seat {
+    display: flex; align-items: center; gap: 10px;
+    padding: 3px 0;
+    font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+    color: #d8b9a4; opacity: .55;
+    transition: opacity .3s, color .3s;
+}
+.seat.live { opacity: 1; color: var(--brass-lt); }
+.seat.dead { opacity: .28; text-decoration: line-through; text-decoration-thickness: 1px; }
+.seat .who { flex: 1; }
+.seat .pips { display: flex; gap: 4px; }
+.pip {
+    width: 7px; height: 7px; border-radius: 50%;
+    border: 1px solid rgba(240,220,190,.42);
+    background: transparent;                       /* face-up: spent */
+}
+.pip.held { background: var(--ivory); border-color: var(--ivory); }   /* still concealed */
+.seat.dead .pip { border-color: rgba(240,220,190,.25); }
+
+.ledger .bar {
+    height: 1px; margin: 9px -18px 8px;
+    background: linear-gradient(to right, transparent, rgba(0,0,0,.6), transparent);
+}
+#phase-indicator {
+    margin: 0; text-align: left;
+    font-family: 'Bodoni Moda', serif; font-size: 12px;
+    letter-spacing: .22em; text-transform: uppercase;
+    color: var(--brass);
+}
+
+/* ── action rail ────────────────────────────────────────────── */
+.rail {
+    position: fixed; right: 26px; bottom: 26px; z-index: 900;
+    display: flex; gap: 12px; align-items: flex-end;
+}
+.luxury-btn {
+    padding: 12px 20px; cursor: pointer;
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+    border: 0;
+    transition: transform .18s cubic-bezier(.2,.9,.3,1), box-shadow .18s, background-position .5s;
+}
+.luxury-btn:hover { background-position: 100% 0; transform: translateY(-2px); box-shadow: var(--engrave), 0 16px 34px rgba(0,0,0,.8); }
+.luxury-btn:active { transform: translateY(1px); box-shadow: var(--engrave), 0 4px 10px rgba(0,0,0,.7); }
+.luxury-btn:focus-visible { outline: 2px solid var(--brass-lt); outline-offset: 3px; }
+.hidden { display: none !important; }
+
+/* ── marker cards (modals) ──────────────────────────────────── */
+.modal {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%,-48%) scale(.94); opacity: 0;
+    display: none; flex-direction: column; align-items: center;
+    padding: 34px 38px 26px; max-width: min(92vw, 420px); z-index: 2000;
+    background:
+        radial-gradient(120% 100% at 50% 0%, #f3ead6, var(--card) 62%, #cfc3a6 100%);
+    border-radius: 3px;
+    box-shadow:
+        0 0 0 1px #9c8a63, 0 0 0 5px var(--card), 0 0 0 6px #7d6a44,
+        0 34px 80px rgba(0,0,0,.85);
+    color: #2a2115;
+    transition: transform .35s cubic-bezier(.2,.9,.3,1), opacity .35s;
+}
+.modal.active { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+
+.popup-header { text-align: center; margin-bottom: 22px; }
+.popup-header h2 {
+    margin: 0; font-family: 'Bodoni Moda', serif; font-weight: 600;
+    font-size: 17px; letter-spacing: .2em; text-transform: uppercase; color: #201a11;
+}
+.popup-header h2::after {
+    content: ''; display: block; width: 34px; height: 2px; margin: 9px auto 0;
+    background: var(--brass-dk); opacity: .55;
+}
+.popup-header p {
+    margin: 9px 0 0; font-size: 11px; font-weight: 500;
+    letter-spacing: .14em; text-transform: uppercase; color: #6d5f45;
+}
+
+.guess-grid { display: grid; grid-template-columns: repeat(4, 54px); gap: 9px; margin-bottom: 22px; }
+.guess-btn {
+    width: 54px; height: 54px; cursor: pointer;
+    font-family: 'Bodoni Moda', serif; font-size: 22px; font-weight: 600;
+    color: #23190e;
+    background: linear-gradient(#fffdf6, #ddd2b6);
+    border: 1px solid #a89a76;
+    border-radius: 2px;
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #9e8f6c, 0 4px 8px rgba(0,0,0,.3);
+    transition: transform .14s, box-shadow .14s, background .14s, opacity .2s;
+}
+.guess-btn.dimmed { opacity: .22; }                 /* ruled out by the table */
+.guess-btn:active { transform: translateY(2px); box-shadow: inset 0 1px 0 #fff, 0 0 0 #9e8f6c, 0 1px 3px rgba(0,0,0,.3); }
+.guess-btn:focus-visible { outline: 2px solid var(--wax); outline-offset: 2px; }
+/* Same hairline problem as the tile: at 22px Bodoni's dash is a thread. Draw it. */
+.joker-btn {
+    grid-column: 1 / -1; justify-self: center;
+    display: flex; align-items: center; justify-content: center; font-size: 0;
+}
+.joker-btn::after { content: ''; width: 14px; height: 3px; background: currentColor; }
+@media (hover: hover) {
+    .guess-btn:hover { background: linear-gradient(#fff, #f0e6cd); transform: translateY(-2px); box-shadow: inset 0 1px 0 #fff, 0 4px 0 #9e8f6c, 0 8px 14px rgba(0,0,0,.35); }
+}
+
+.cancel-link {
+    background: none; border: 0; cursor: pointer;
+    font-family: 'Barlow Semi Condensed', sans-serif;
+    font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+    color: #8a795a; transition: color .25s;
+}
+.cancel-link:hover { color: var(--wax); }
+.cancel-link:focus-visible { outline: 2px solid var(--wax); outline-offset: 3px; }
+.modal-actions { display: flex; gap: 12px; }
+.modal .luxury-btn { box-shadow: var(--engrave), 0 5px 12px rgba(0,0,0,.4); }
+.modal .luxury-btn:hover { box-shadow: var(--engrave), 0 10px 20px rgba(0,0,0,.45); }
+
+#result-text {
+    margin: 4px 0 22px; font-family: 'Bodoni Moda', serif; font-weight: 700;
+    font-size: 30px; letter-spacing: .24em; text-transform: uppercase;
+}
+
+/* ── the dealer's call ──────────────────────────────────────── */
+#toast {
+    display: none; position: fixed; top: 26px; left: 50%; transform: translateX(-50%);
+    padding: 11px 26px; max-width: 88vw; z-index: 1500; text-align: center;
+    background: linear-gradient(to bottom, #2c1a12, var(--walnut));
+    border: 1px solid #4a331f;
+    border-radius: 2px;
+    box-shadow: inset 0 1px 0 rgba(255,220,170,.16), var(--lift);
+    color: var(--brass-lt);
+    font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+    line-height: 1.5;
+}
+#toast.alert { background: linear-gradient(to bottom, #6b2220, #3d1210); border-color: #7d2c26; color: #f6d9cf; }
+
+@media (max-width: 640px) {
+    .ledger { bottom: 14px; left: 14px; padding: 10px 13px 9px; min-width: 158px; }
+    .seat { font-size: 9px; gap: 7px; }
+    .pip { width: 6px; height: 6px; }
+    .rail { right: 14px; bottom: 14px; gap: 7px; flex-direction: column; align-items: stretch; }
+    .luxury-btn { padding: 9px 13px; font-size: 9px; letter-spacing: .12em; }
+    .modal { padding: 24px 20px 18px; }
+    .guess-grid { grid-template-columns: repeat(4, 48px); gap: 7px; }
+    .guess-btn { width: 48px; height: 48px; font-size: 19px; }
+    #toast { top: 14px; font-size: 10px; padding: 9px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .modal, .luxury-btn, .guess-btn, .seat { transition: none !important; }
+}
