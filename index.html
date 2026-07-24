@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LE CERCLE BGD</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,600;6..96,700&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="webgl-container"></div>
+<div class="ui-overlay"></div>
+
+
+<aside class="ledger">
+    <div id="seat-rows"></div>
+    <div class="bar"></div>
+    <p id="phase-indicator">Setup Phase</p>
+</aside>
+
+<div class="rail">
+    <button class="luxury-btn brass" id="btn-new">Deal</button>
+    <button class="luxury-btn brass" id="btn-sort">Sort hand</button>
+    <button class="luxury-btn brass" id="btn-lock">Set hand</button>
+</div>
+
+<div id="toast"></div>
+
+<div class="modal" id="guess-popup">
+    <div class="popup-header"><h2>Call a tile</h2><p id="guess-sub"></p></div>
+    <div class="guess-grid" id="guess-grid"></div>
+    <button class="cancel-link" id="btn-cancel">Back to the table</button>
+</div>
+
+<div class="modal" id="continue-popup">
+    <div class="popup-header"><h2>Correct call</h2><p>Call again, or pass the shoe.</p></div>
+    <div class="modal-actions">
+        <button class="luxury-btn brass" id="btn-continue">Call again</button>
+        <button class="luxury-btn brass" id="btn-pass">Pass</button>
+    </div>
+</div>
+
+<div class="modal" id="result-popup">
+    <h1 id="result-text">VICTORY</h1>
+    <button class="luxury-btn brass" id="btn-again">Deal again</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+<script src="js/textures.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/inference.js"></script>
+<script src="js/core.js"></script>
+</body>
+</html>
